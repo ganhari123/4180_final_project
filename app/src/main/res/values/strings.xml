@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Bluetooth connection test</string>
+    <string name="title_activity_set_up_connection">SetUpConnection</string>
+</resources>

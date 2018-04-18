@@ -1,81 +1,23 @@
-/** \file main.cpp ******************************************************
-*
-* Project: MAXREFDES117#
-* Filename: main.cpp
-* Description: This module contains the Main application for the MAXREFDES117 example program.
-*
-*
-* --------------------------------------------------------------------
-*
-* This code follows the following naming conventions:
-*
-* char              ch_pmod_value
-* char (array)      s_pmod_s_string[16]
-* float             f_pmod_value
-* int32_t           n_pmod_value
-* int32_t (array)   an_pmod_value[16]
-* int16_t           w_pmod_value
-* int16_t (array)   aw_pmod_value[16]
-* uint16_t          uw_pmod_value
-* uint16_t (array)  auw_pmod_value[16]
-* uint8_t           uch_pmod_value
-* uint8_t (array)   auch_pmod_buffer[16]
-* uint32_t          un_pmod_value
-* int32_t *         pn_pmod_value
-*
-* ------------------------------------------------------------------------- */
-/*******************************************************************************
-* Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the "Software"),
-* to deal in the Software without restriction, including without limitation
-* the rights to use, copy, modify, merge, publish, distribute, sublicense,
-* and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included
-* in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-* IN NO EVENT SHALL MAXIM INTEGRATED BE LIABLE FOR ANY CLAIM, DAMAGES
-* OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-*
-* Except as contained in this notice, the name of Maxim Integrated
-* Products, Inc. shall not be used except as stated in the Maxim Integrated
-* Products, Inc. Branding Policy.
-*
-* The mere transfer of this software does not imply any licenses
-* of trade secrets, proprietary technology, copyrights, patents,
-* trademarks, maskwork rights, or any other form of intellectual
-* property whatsoever. Maxim Integrated Products, Inc. retains all
-* ownership rights.
-*******************************************************************************
-*/
-/*!\mainpage Main Page
-*
-* \section intro_sec Introduction
-*
-* This is the code documentation for the MAXREFDES117# subsystem reference design.
-* 
-*  The Files page contains the File List page and the Globals page.
-* 
-*  The Globals page contains the Functions, Variables, and Macros sub-pages.
-*
-* \image html MAXREFDES117_Block_Diagram.png "MAXREFDES117# System Block Diagram"
-* 
-* \image html MAXREFDES117_firmware_Flowchart.png "MAXREFDES117# Firmware Flowchart"
-*
-*/
+
+#include "rtos.h"
 #include "mbed.h"
+#include "LSM9DS1.h"
+
 #include "algorithm.h"
 #include "MAX30102.h"
 
+#include <math.h>
+
 #define MAX_BRIGHTNESS 255
+
+RawSerial  bluetooth(p13,p14);
+
+Thread t_imu;
+Thread t_heartrate;
+
+volatile char heartrate;
+volatile char has_fallen = 0; 
+
 
 uint32_t aun_ir_buffer[500]; //IR LED sensor data
 int32_t n_ir_buffer_length;    //data length
@@ -91,9 +33,58 @@ Serial pc(USBTX, USBRX);    //initializes the serial port
 PwmOut led(LED1);    //initializes the pwm output that connects to the on board LED
 DigitalIn INT(p26);  //pin P20 connects to the interrupt output pin of the MAX30102
 
+LSM9DS1 imu(p9, p10, 0xD6, 0x3C);
+
+void getHR(void);
+
+void imu_fall_check() {
+    while(1) {
+    //Calculate the magnitude of the accel vector. If above 4.0 (from research graphs) we will mark it as a fall.
+    imu.readMag();
+    float accel_mag = imu.ax*imu.ax + imu.ay*imu.ay + imu.az*imu.az;
+    if(accel_mag > 16.0) {
+        has_fallen = 1;  
+        //Wait for half a second to make sure that the fall gets sent properly by the main thread.
+        Thread::wait(500);
+    } else {
+        has_fallen = 0;
+    }
+    }
+}
+
 // the setup routine runs once when you press reset:
 int main() { 
-    uint32_t un_min, un_max, un_prev_data;  //variables to calculate the on-board LED brightness that reflects the heartbeats
+
+    //int hearRate = getHR();
+    
+    pc.baud(9600);
+    bluetooth.baud(9600);
+
+    //IMU init stuff
+    imu.begin();
+    if( !imu.begin() ) {
+    pc.printf("Failed to start IMU.");
+    }
+    imu.calibrate();
+
+    //Start threads
+    t_imu.start(imu_fall_check);
+    t_heartrate.start(getHR);
+
+    //Main thread will fire a packet every .25 seconds
+    while(1) {
+    bluetooth.putc('G');
+    bluetooth.putc(heartrate);
+    bluetooth.putc(has_fallen);
+        Thread::wait(250);
+    }
+}
+
+
+
+void getHR(void)
+{
+     uint32_t un_min, un_max, un_prev_data;  //variables to calculate the on-board LED brightness that reflects the heartbeats
     int i;
     int32_t n_brightness;
     float f_temp;
@@ -102,18 +93,9 @@ int main() {
     // initialize serial communication at 115200 bits per second:
     pc.baud(9600);
     pc.format(8,SerialBase::None,1);
-    wait(1);
     
     //read and clear status register
     maxim_max30102_read_reg(0,&uch_dummy);
-    
-    //wait until the user presses a key
-    while(pc.readable()==0)
-    {
-        pc.printf("\x1B[2J");  //clear terminal program screen
-        pc.printf("Press any key to start conversion\n\r");
-        wait(1);
-    }
     uch_dummy=getchar();
     
     maxim_max30102_init();  //initializes the MAX30102
@@ -128,7 +110,10 @@ int main() {
     //read the first 500 samples, and determine the signal range
     for(i=0;i<n_ir_buffer_length;i++)
     {
-        while(INT.read()==1);   //wait until the interrupt pin asserts
+        while(INT.read()==1)//wait until the interrupt pin asserts
+        {
+            Thread::wait(10);
+        }   
         
         maxim_max30102_read_fifo((aun_red_buffer+i), (aun_ir_buffer+i));  //read from MAX30102 FIFO
             
@@ -194,6 +179,8 @@ int main() {
             }
 
             led.write(1-(float)n_brightness/256);
+            
+            heartrate = n_heart_rate;
 
             //send samples and calculation result to terminal program through UART
             pc.printf("red=");
@@ -207,5 +194,6 @@ int main() {
         }
         maxim_heart_rate_and_oxygen_saturation(aun_ir_buffer, n_ir_buffer_length, aun_red_buffer, &n_sp02, &ch_spo2_valid, &n_heart_rate, &ch_hr_valid); 
     }
+    
 }
  

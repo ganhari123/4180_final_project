@@ -46,26 +46,79 @@ PROJECT := RD117_MBED
 ###############################################################################
 # Objects and Paths
 
+OBJECTS += LSM9DS1.o
 OBJECTS += MAX30102/MAX30102.o
 OBJECTS += algorithm/algorithm.o
 OBJECTS += main.o
+OBJECTS += mbed-rtos/rtos/Mutex.o
+OBJECTS += mbed-rtos/rtos/RtosTimer.o
+OBJECTS += mbed-rtos/rtos/Semaphore.o
+OBJECTS += mbed-rtos/rtos/Thread.o
+OBJECTS += mbed-rtos/rtos/rtos_idle.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/HAL_CM.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/RTX_Conf_CM.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/TARGET_M3/TOOLCHAIN_GCC/HAL_CM3.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/TARGET_M3/TOOLCHAIN_GCC/SVC_Table.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_CMSIS.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Event.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_List.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Mailbox.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_MemBox.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Memory.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Mutex.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_OsEventObserver.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Robin.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Semaphore.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_System.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Task.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Time.o
+OBJECTS += mbed-rtos/rtx/TARGET_CORTEX_M/rt_Timer.o
 
- SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/board.o
- SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/cmsis_nvic.o
- SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/retarget.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/analogin_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/CRP.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/analogout_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/can_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/ethernet_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/flash_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/gpio_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/gpio_irq_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/i2c_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/mbed_board.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/mbed_retarget.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/mbed_sdk_boot.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/pinmap.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/port_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/pwmout_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/rtc_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/serial_api.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/sleep.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/spi_api.o
  SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/startup_LPC17xx.o
  SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/system_LPC17xx.o
+ SYS_OBJECTS += mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM/us_ticker.o
 
 INCLUDE_PATHS += -I../
 INCLUDE_PATHS += -I../.
 INCLUDE_PATHS += -I../MAX30102
 INCLUDE_PATHS += -I../algorithm
+INCLUDE_PATHS += -I../mbed-rtos
+INCLUDE_PATHS += -I../mbed-rtos/rtos
+INCLUDE_PATHS += -I../mbed-rtos/rtx
+INCLUDE_PATHS += -I../mbed-rtos/rtx/TARGET_CORTEX_M
+INCLUDE_PATHS += -I../mbed-rtos/rtx/TARGET_CORTEX_M/TARGET_M3
+INCLUDE_PATHS += -I../mbed-rtos/rtx/TARGET_CORTEX_M/TARGET_M3/TOOLCHAIN_GCC
+INCLUDE_PATHS += -I../mbed-rtos/targets
+INCLUDE_PATHS += -I../mbed-rtos/targets/TARGET_NXP
 INCLUDE_PATHS += -I../mbed/.
 INCLUDE_PATHS += -I../mbed/TARGET_LPC1768
 INCLUDE_PATHS += -I../mbed/TARGET_LPC1768/TARGET_NXP
 INCLUDE_PATHS += -I../mbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X
 INCLUDE_PATHS += -I../mbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X/TARGET_MBED_LPC1768
+INCLUDE_PATHS += -I../mbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X/device
 INCLUDE_PATHS += -I../mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM
+INCLUDE_PATHS += -I../mbed/drivers
+INCLUDE_PATHS += -I../mbed/hal
+INCLUDE_PATHS += -I../mbed/platform
 
 LIBRARY_PATHS := -L../mbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM 
 LIBRARIES := -lmbed 
@@ -80,7 +133,7 @@ CC      = 'arm-none-eabi-gcc' '-std=gnu99' '-c' '-Wall' '-Wextra' '-Wno-unused-p
 CPP     = 'arm-none-eabi-g++' '-std=gnu++98' '-fno-rtti' '-Wvla' '-c' '-Wall' '-Wextra' '-Wno-unused-parameter' '-Wno-missing-field-initializers' '-fmessage-length=0' '-fno-exceptions' '-fno-builtin' '-ffunction-sections' '-fdata-sections' '-funsigned-char' '-MMD' '-fno-delete-null-pointer-checks' '-fomit-frame-pointer' '-Os' '-g1' '-mcpu=cortex-m3' '-mthumb'
 LD      = 'arm-none-eabi-gcc'
 ELF2BIN = 'arm-none-eabi-objcopy'
-PREPROC = 'arm-none-eabi-cpp' '-E' '-P' '-Wl,--gc-sections' '-Wl,--wrap,main' '-mcpu=cortex-m3' '-mthumb'
+PREPROC = 'arm-none-eabi-cpp' '-E' '-P' '-Wl,--gc-sections' '-Wl,--wrap,main' '-Wl,--wrap,_malloc_r' '-Wl,--wrap,_free_r' '-Wl,--wrap,_realloc_r' '-Wl,--wrap,_memalign_r' '-Wl,--wrap,_calloc_r' '-Wl,--wrap,exit' '-Wl,--wrap,atexit' '-Wl,-n' '-mcpu=cortex-m3' '-mthumb'
 
 
 C_FLAGS += -std=gnu99
@@ -102,7 +155,7 @@ C_FLAGS += -DARM_MATH_CM3
 C_FLAGS += -DDEVICE_ANALOGOUT=1
 C_FLAGS += -DTARGET_UVISOR_UNSUPPORTED
 C_FLAGS += -DTARGET_M3
-C_FLAGS += -DDEVICE_PWMOUT=1
+C_FLAGS += -DMBED_BUILD_TIMESTAMP=1524010108.9
 C_FLAGS += -DDEVICE_INTERRUPTIN=1
 C_FLAGS += -DTARGET_LPCTarget
 C_FLAGS += -DTARGET_CORTEX
@@ -110,11 +163,11 @@ C_FLAGS += -DDEVICE_I2C=1
 C_FLAGS += -DDEVICE_PORTOUT=1
 C_FLAGS += -D__CORTEX_M3
 C_FLAGS += -DDEVICE_STDIO_MESSAGES=1
+C_FLAGS += -DDEVICE_PWMOUT=1
 C_FLAGS += -DTARGET_LPC1768
 C_FLAGS += -DTARGET_RELEASE
 C_FLAGS += -DDEVICE_PORTINOUT=1
 C_FLAGS += -DDEVICE_SERIAL_FC=1
-C_FLAGS += -DMBED_BUILD_TIMESTAMP=1524001478.01
 C_FLAGS += -DTARGET_MBED_LPC1768
 C_FLAGS += -DDEVICE_PORTIN=1
 C_FLAGS += -DDEVICE_SLEEP=1
@@ -152,7 +205,7 @@ CXX_FLAGS += -DARM_MATH_CM3
 CXX_FLAGS += -DDEVICE_ANALOGOUT=1
 CXX_FLAGS += -DTARGET_UVISOR_UNSUPPORTED
 CXX_FLAGS += -DTARGET_M3
-CXX_FLAGS += -DDEVICE_PWMOUT=1
+CXX_FLAGS += -DMBED_BUILD_TIMESTAMP=1524010108.9
 CXX_FLAGS += -DDEVICE_INTERRUPTIN=1
 CXX_FLAGS += -DTARGET_LPCTarget
 CXX_FLAGS += -DTARGET_CORTEX
@@ -160,11 +213,11 @@ CXX_FLAGS += -DDEVICE_I2C=1
 CXX_FLAGS += -DDEVICE_PORTOUT=1
 CXX_FLAGS += -D__CORTEX_M3
 CXX_FLAGS += -DDEVICE_STDIO_MESSAGES=1
+CXX_FLAGS += -DDEVICE_PWMOUT=1
 CXX_FLAGS += -DTARGET_LPC1768
 CXX_FLAGS += -DTARGET_RELEASE
 CXX_FLAGS += -DDEVICE_PORTINOUT=1
 CXX_FLAGS += -DDEVICE_SERIAL_FC=1
-CXX_FLAGS += -DMBED_BUILD_TIMESTAMP=1524001478.01
 CXX_FLAGS += -DTARGET_MBED_LPC1768
 CXX_FLAGS += -DDEVICE_PORTIN=1
 CXX_FLAGS += -DDEVICE_SLEEP=1
@@ -190,15 +243,27 @@ ASM_FLAGS += -DARM_MATH_CM3
 ASM_FLAGS += -I.
 ASM_FLAGS += -IMAX30102
 ASM_FLAGS += -Ialgorithm
+ASM_FLAGS += -Imbed-rtos
+ASM_FLAGS += -Imbed-rtos/rtos
+ASM_FLAGS += -Imbed-rtos/rtx
+ASM_FLAGS += -Imbed-rtos/rtx/TARGET_CORTEX_M
+ASM_FLAGS += -Imbed-rtos/rtx/TARGET_CORTEX_M/TARGET_M3
+ASM_FLAGS += -Imbed-rtos/rtx/TARGET_CORTEX_M/TARGET_M3/TOOLCHAIN_GCC
+ASM_FLAGS += -Imbed-rtos/targets
+ASM_FLAGS += -Imbed-rtos/targets/TARGET_NXP
 ASM_FLAGS += -Imbed/.
 ASM_FLAGS += -Imbed/TARGET_LPC1768
 ASM_FLAGS += -Imbed/TARGET_LPC1768/TARGET_NXP
 ASM_FLAGS += -Imbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X
 ASM_FLAGS += -Imbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X/TARGET_MBED_LPC1768
+ASM_FLAGS += -Imbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X/device
 ASM_FLAGS += -Imbed/TARGET_LPC1768/TOOLCHAIN_GCC_ARM
+ASM_FLAGS += -Imbed/drivers
+ASM_FLAGS += -Imbed/hal
+ASM_FLAGS += -Imbed/platform
 
 
-LD_FLAGS :=-Wl,--gc-sections -Wl,--wrap,main -mcpu=cortex-m3 -mthumb 
+LD_FLAGS :=-Wl,--gc-sections -Wl,--wrap,main -Wl,--wrap,_malloc_r -Wl,--wrap,_free_r -Wl,--wrap,_realloc_r -Wl,--wrap,_memalign_r -Wl,--wrap,_calloc_r -Wl,--wrap,exit -Wl,--wrap,atexit -Wl,-n -mcpu=cortex-m3 -mthumb 
 LD_SYS_LIBS :=-Wl,--start-group -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -lmbed -Wl,--end-group
 
 # Tools and Flags

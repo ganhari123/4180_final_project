@@ -180,7 +180,12 @@ void getHR(void)
 
             led.write(1-(float)n_brightness/256);
             
-            heartrate = n_heart_rate;
+            if(n_heart_rate > 255)
+                heartrate = 255;
+            else if(n_heart_rate < 0)
+                heartrate = 0;
+            else 
+                heartrate = n_heart_rate;
 
             //send samples and calculation result to terminal program through UART
             pc.printf("red=");

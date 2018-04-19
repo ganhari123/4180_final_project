@@ -22,7 +22,7 @@ import java.util.UUID;
 public class SetUpConnection extends AppCompatActivity {
 
     private static final String TAG = "RASP";
-    private static final UUID MY_UUID = UUID.fromString("563d6cfc-07f0-4f37-9832-0bf824a69c17");
+    private static final UUID MY_UUID = UUID.fromString("%08x-0000-1000-8000-00805f9b34fb");
     BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler;
 
@@ -80,31 +80,32 @@ public class SetUpConnection extends AppCompatActivity {
             } catch (IOException connectException) {
                 // Unable to connect; close the socket and return.
                 try {
+                    Log.e(TAG, "ERROR not connectd");
                     mmSocket.close();
                 } catch (IOException closeException) {
                     Log.e(TAG, "Could not close the client socket", closeException);
                 }
                 return;
             }
-
+            Log.d(TAG, "Connected to device");
             // The connection attempt succeeded. Perform work associated with
             // the connection in a separate thread.
 //            manageMyConnectedSocket(mmSocket);
-            String s = "Yo whats up";
-            byte[] b = s.getBytes();
-            byte[] buffer = new byte[1024];
-            try {
-                OutputStream mOut = mmSocket.getOutputStream();
-                Log.d(TAG, "Written data");
-                mOut.write(b);
-                InputStream mIn = mmSocket.getInputStream();
-                int numBytes = mIn.read(buffer);
-                Log.d(TAG, String.valueOf(numBytes));
-                final String data = new String(buffer, "US-ASCII");
-                Log.d(TAG, data);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            String s = "Yo whats up";
+//            byte[] b = s.getBytes();
+//            byte[] buffer = new byte[1024];
+//            try {
+//                OutputStream mOut = mmSocket.getOutputStream();
+//                Log.d(TAG, "Written data");
+//                mOut.write(b);
+//                InputStream mIn = mmSocket.getInputStream();
+//                int numBytes = mIn.read(buffer);
+//                Log.d(TAG, String.valueOf(numBytes));
+//                final String data = new String(buffer, "US-ASCII");
+//                Log.d(TAG, data);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
 
         // Closes the client socket and causes the thread to finish.

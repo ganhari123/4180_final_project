@@ -73,10 +73,15 @@ int main() {
 
     //Main thread will fire a packet every .25 seconds
     while(1) {
-		Thread::wait(250);
+        Thread::wait(500);
+        //heartrate = 42;
     bluetooth.putc('G');
     bluetooth.putc(heartrate);
     bluetooth.putc(has_fallen);
+    
+    pc.putc('G');
+    pc.putc(heartrate);
+    pc.putc(has_fallen);
         
     }
 }

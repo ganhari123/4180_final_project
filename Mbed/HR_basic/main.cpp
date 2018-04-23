@@ -29,6 +29,9 @@ int8_t ch_spo2_valid;   //indicator to show if the SP02 calculation is valid
 int32_t n_heart_rate;   //heart rate value
 int8_t  ch_hr_valid;    //indicator to show if the heart rate calculation is valid
 uint8_t uch_dummy;
+DigitalOut led4(LED4);
+DigitalOut led3(LED3);
+AnalogIn fall_sensitivity(p15);
 
 Serial pc(USBTX, USBRX);    //initializes the serial port
 
@@ -42,9 +45,16 @@ void getHR(void);
 void imu_fall_check() {
     while(1) {
     //Calculate the magnitude of the accel vector. If above 4.0 (from research graphs) we will mark it as a fall.
-    imu.readMag();
-    float accel_mag = imu.ax*imu.ax + imu.ay*imu.ay + imu.az*imu.az;
-    if(accel_mag > 16.0) {
+    float thresh_mag = 10.0 * fall_sensitivity;
+    imu.readAccel();
+    
+    float ax = imu.calcAccel(imu.ax);
+    float ay = imu.calcAccel(imu.ay);
+    float az = imu.calcAccel(imu.az);
+    
+    float accel_mag = ax*ax + ay*ay + az*az;
+    pc.printf("Current accel: %.3f", accel_mag);
+    if(accel_mag > thresh_mag) {
         has_fallen = '1';  
         //Wait for half a second to make sure that the fall gets sent properly by the main thread.
         Thread::wait(500);
@@ -63,13 +73,17 @@ int main() {
     bluetooth.baud(9600);
 
     //IMU init stuff
+    led4 = 0; //success
+    led3 = 0; //failure
     imu.begin();
     if( !imu.begin() ) {
+        led3 = 1;
         pc.printf("Failed to start IMU.");
     }
     else{
         imu.calibrate();
         t_imu.start(imu_fall_check);
+        led4 = 1;
     }
     
 

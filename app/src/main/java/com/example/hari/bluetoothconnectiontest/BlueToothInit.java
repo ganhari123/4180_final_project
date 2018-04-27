@@ -74,7 +74,7 @@ public class BlueToothInit extends AppCompatActivity implements LocationListener
                 == PackageManager.PERMISSION_GRANTED) {
 
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage("+15619061056", null, "Welcome to the heart rate monitor app", null, null);
+            smsManager.sendTextMessage("", null, "Welcome to the heart rate monitor app", null, null);
         } else {
             ActivityCompat.requestPermissions(BlueToothInit.this,new String[]{Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE},2);
         }
@@ -145,7 +145,7 @@ public class BlueToothInit extends AppCompatActivity implements LocationListener
                         Log.d(TAG, "Permissions granted");
 
                         SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage("+15619061056", null, "Welcome to the heart rate monitor app", null, null);
+                        smsManager.sendTextMessage("", null, "Welcome to the heart rate monitor app", null, null);
 
                     }
                 }

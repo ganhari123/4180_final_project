@@ -143,7 +143,7 @@ public class BLEGattCallback extends BluetoothGattCallback {
                         double lat = location.getLatitude();
                         double lon = location.getLongitude();
                         SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage("+15619061056", null, "My Coordinates are: " + String.valueOf(lat) + " " + String.valueOf(lon) , null, null);
+                        smsManager.sendTextMessage("", null, "My Coordinates are: " + String.valueOf(lat) + " " + String.valueOf(lon) , null, null);
                     }
                 }
             }

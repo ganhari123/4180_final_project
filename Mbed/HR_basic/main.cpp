@@ -15,8 +15,10 @@ RawSerial  bluetooth(p13,p14);
 Thread t_imu;
 Thread t_heartrate;
 
-volatile char heartrate;
-volatile char has_fallen = 0; 
+volatile char heartrate2 = '0';
+volatile char heartrate1 = '0';
+volatile char heartrate0 = '0';
+volatile char has_fallen = '0'; 
 
 
 uint32_t aun_ir_buffer[500]; //IR LED sensor data
@@ -27,6 +29,9 @@ int8_t ch_spo2_valid;   //indicator to show if the SP02 calculation is valid
 int32_t n_heart_rate;   //heart rate value
 int8_t  ch_hr_valid;    //indicator to show if the heart rate calculation is valid
 uint8_t uch_dummy;
+DigitalOut led4(LED4);
+DigitalOut led3(LED3);
+AnalogIn fall_sensitivity(p15);
 
 Serial pc(USBTX, USBRX);    //initializes the serial port
 
@@ -40,14 +45,21 @@ void getHR(void);
 void imu_fall_check() {
     while(1) {
     //Calculate the magnitude of the accel vector. If above 4.0 (from research graphs) we will mark it as a fall.
-    imu.readMag();
-    float accel_mag = imu.ax*imu.ax + imu.ay*imu.ay + imu.az*imu.az;
-    if(accel_mag > 16.0) {
-        has_fallen = 1;  
+    float thresh_mag = 10.0 * fall_sensitivity;
+    imu.readAccel();
+    
+    float ax = imu.calcAccel(imu.ax);
+    float ay = imu.calcAccel(imu.ay);
+    float az = imu.calcAccel(imu.az);
+    
+    float accel_mag = ax*ax + ay*ay + az*az;
+    pc.printf("Current accel: %.3f", accel_mag);
+    if(accel_mag > thresh_mag) {
+        has_fallen = '1';  
         //Wait for half a second to make sure that the fall gets sent properly by the main thread.
         Thread::wait(500);
     } else {
-        has_fallen = 0;
+        has_fallen = '0';
     }
     }
 }
@@ -61,22 +73,42 @@ int main() {
     bluetooth.baud(9600);
 
     //IMU init stuff
+    led4 = 0; //success
+    led3 = 0; //failure
     imu.begin();
     if( !imu.begin() ) {
-    pc.printf("Failed to start IMU.");
+        led3 = 1;
+        pc.printf("Failed to start IMU.");
     }
-    imu.calibrate();
+    else{
+        imu.calibrate();
+        t_imu.start(imu_fall_check);
+        led4 = 1;
+    }
+    
 
     //Start threads
-    t_imu.start(imu_fall_check);
+    
     t_heartrate.start(getHR);
 
     //Main thread will fire a packet every .25 seconds
     while(1) {
+        Thread::wait(500);
+        //heartrate = 42;
+        //has_fallen = 6;
     bluetooth.putc('G');
-    bluetooth.putc(heartrate);
+    //bluetooth.putc(heartrate);
+    bluetooth.putc(heartrate2);
+    bluetooth.putc(heartrate1);
+    bluetooth.putc(heartrate0);
     bluetooth.putc(has_fallen);
-        Thread::wait(250);
+    
+    pc.putc('G');
+    pc.putc(heartrate2);
+    pc.putc(heartrate1);
+    pc.putc(heartrate0);
+    pc.putc(has_fallen);
+        
     }
 }
 
@@ -96,7 +128,8 @@ void getHR(void)
     
     //read and clear status register
     maxim_max30102_read_reg(0,&uch_dummy);
-    uch_dummy=getchar();
+    
+    //uch_dummy=getchar();
     
     maxim_max30102_init();  //initializes the MAX30102
         
@@ -180,9 +213,12 @@ void getHR(void)
 
             led.write(1-(float)n_brightness/256);
             
-            heartrate = n_heart_rate;
+            heartrate0 = n_heart_rate % 10 + '0';
+            heartrate1 = ((int) n_heart_rate / 10) % 10 + '0';
+            heartrate2 = ((int) n_heart_rate / 100) % 10 + '0';
 
             //send samples and calculation result to terminal program through UART
+            /*
             pc.printf("red=");
             pc.printf("%i", aun_red_buffer[i]);
             pc.printf(", ir=");
@@ -191,6 +227,7 @@ void getHR(void)
             pc.printf("HRvalid=%i, ", ch_hr_valid);
             pc.printf("SpO2=%i, ", n_sp02);
             pc.printf("SPO2Valid=%i\n\r", ch_spo2_valid);
+            */
         }
         maxim_heart_rate_and_oxygen_saturation(aun_ir_buffer, n_ir_buffer_length, aun_red_buffer, &n_sp02, &ch_spo2_valid, &n_heart_rate, &ch_hr_valid); 
     }
